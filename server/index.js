@@ -15,6 +15,7 @@ mongoose.connect('mongodb://localhost:27017/server', {
 });
 
 // Course List Management
+//mongoose.model(modelName, schema);
 const Course = mongoose.model('CourseList', new mongoose.Schema({
     name: { type: String },
     fullName: { type: String },
@@ -26,6 +27,19 @@ const Course = mongoose.model('CourseList', new mongoose.Schema({
 }))
 
 // courseList
+//test
+app.get('/api/test', async (request, response) => {
+    let a = 'ECE1762';
+    const result = await Course.find({ 'name': a });
+    if (result.length === 0) {
+        response.send(result);
+    } else {
+        response.send("Error: Course existed");
+    }
+
+
+})
+// get course list
 app.get('/api/courseList', async (request, response) => {
     const courseList = await Course.find();
     response.send(courseList);
@@ -33,20 +47,34 @@ app.get('/api/courseList', async (request, response) => {
 
 // add a course
 app.post('/api/addCourse', async (request, response) => {
-    const cur_course = await Course.create(request.body);
-    response.send(cur_course);
+    let cur_name = request.body.name;
+    const cur_list = await Course.find({ 'name': cur_name });
+    if (cur_list.length === 0) {
+        const cur_course = await Course.create(request.body);
+        response.send(cur_course);
+    } else {
+        response.send("Error: Course existed");
+    }
+})
+
+// edit course info
+app.post('/api/editCourse/:id', async (request, response) => {
+    await Course.findByIdAndUpdate(request.params.id, request.body);
+    response.send({
+        status: true,
+        message: "Updated successful",
+    })
 })
 
 // delete a course
-app.delete('/api/course/:name', async (request, response) => {
+app.delete('/api/deleteCourse/:id', async (request, response) => {
     await Course.findByIdAndDelete(request.params.id);
-    res.send({
+    response.send({
         status: true,
+        message: "Deleted successful",
     })
 
 })
-
-
 
 app.get('/', async (request, response) => {
     response.send('launch successful');
