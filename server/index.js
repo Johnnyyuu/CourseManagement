@@ -50,10 +50,19 @@ app.post('/api/addCourse', async (request, response) => {
     let cur_name = request.body.name;
     const cur_list = await Course.find({ 'name': cur_name });
     if (cur_list.length === 0) {
-        const cur_course = await Course.create(request.body);
-        response.send(cur_course);
+        await Course.create(request.body).then(() => {
+            response.send({
+                status: 200,
+                message: "Add successful",
+            });
+        }
+        );
+
     } else {
-        response.send("Error: Course existed");
+        response.send({
+            status: 400,
+            message: "Error: Course existed",
+        });
     }
 })
 
@@ -61,7 +70,7 @@ app.post('/api/addCourse', async (request, response) => {
 app.post('/api/editCourse/:id', async (request, response) => {
     await Course.findByIdAndUpdate(request.params.id, request.body);
     response.send({
-        status: true,
+        status: 200,
         message: "Updated successful",
     })
 })
@@ -70,7 +79,7 @@ app.post('/api/editCourse/:id', async (request, response) => {
 app.delete('/api/deleteCourse/:id', async (request, response) => {
     await Course.findByIdAndDelete(request.params.id);
     response.send({
-        status: true,
+        status: 200,
         message: "Deleted successful",
     })
 
