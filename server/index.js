@@ -107,8 +107,9 @@ app.post('/api/user/login', async (request, response) => {
         username: request.body.username,
     })
     if (user.length === 0) {
-        return response.status(422).send({
-            message: `invalid username`,
+        return response.send({
+            status: 422,
+            message: `User doesn't exsit`
         })
     }
     const passwordValid = require('bcrypt').compareSync(
@@ -116,8 +117,9 @@ app.post('/api/user/login', async (request, response) => {
         user[0].password
     )
     if (!passwordValid) {
-        return response.status(422).send({
-            message: 'invalid password'
+        return response.send({
+            status: 422,
+            message: 'Invalid password, please check again'
         })
 
     }
@@ -127,6 +129,7 @@ app.post('/api/user/login', async (request, response) => {
         id: String(user[0]._id),
     }, secretkey);
     response.send({
+        status: 200,
         user,
         token: token,
     })
@@ -135,6 +138,7 @@ app.post('/api/user/login', async (request, response) => {
 
 // middleware
 const auth = async (req, res, next) => {
+    // get token
     const raw = String(req.headers.authorization).split(' ').pop();
     const { id } = jwt.verify(raw, secretkey);
     req.user = await User.findById(id);
@@ -143,7 +147,19 @@ const auth = async (req, res, next) => {
 
 // personal info
 app.get('/api/user/profile', auth, async (request, response) => {
-    response.send(request.user);
+    var user = request.user;
+    response.send({
+        username: user.username,
+        password: user.password,
+        _id: user._id,
+        status: 200,
+    });
+})
+
+app.post('/api/user/logout', async (request, response) => {
+    response.send({
+        status: 200,
+    })
 })
 
 
