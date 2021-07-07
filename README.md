@@ -6,4 +6,5 @@ The main functions are being migrated，currently only support the main manageme
 
 updating...
 
+7.7 basic login and register using jwt token and bcrypt
 
